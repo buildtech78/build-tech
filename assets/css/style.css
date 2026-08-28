@@ -132,6 +132,14 @@ ul{ margin:0; padding:0; }
 .brand{ display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:1.05rem; letter-spacing:-0.01em; flex-shrink:0; }
 .brand img{ width:32px; height:32px; }
 .brand .dot{ color:var(--copper); }
+.logo-mark{
+  background:#FBFCFD;
+  border-radius:7px;
+  padding:3px;
+  box-sizing:border-box;
+  object-fit:contain;
+  box-shadow:0 0 0 1px var(--line);
+}
 
 .nav-links{ display:flex; align-items:center; gap:4px; list-style:none; }
 .nav-links a{
