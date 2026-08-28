@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build.Tech — Votre informatique, notre expertise</title>
+<meta name="description" content="Build.Tech : montage PC, nettoyage, changement de composants, vente de matériel informatique et assistance sur mesure.">
+<link rel="canonical" href="https://build-tech.example/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Build.Tech — Votre informatique, notre expertise">
+<meta property="og:description" content="Montage PC, nettoyage, changement de composants, vente de matériel et assistance informatique.">
+<meta property="og:image" content="./assets/img/logo-placeholder.svg">
+<meta name="theme-color" content="#10233A">
+<link rel="icon" href="./assets/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./assets/css/style.css">
+<script>
+  (function(){ var p=localStorage.getItem("buildtech-theme")||"system";
+  var r=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p;
+  document.documentElement.setAttribute("data-theme", r); })();
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="./index.html" class="brand">
+      <img src="./assets/img/logo-placeholder.svg" alt="Logo Build.Tech">
+      Build<span class="dot">.</span>Tech
+    </a>
+    <ul class="nav-links">
+      <li><a href="./index.html">Accueil</a></li>
+      <li><a href="./services.html">Services</a></li>
+      <li><a href="./components.html">Composants</a></li>
+      <li><a href="./contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button type="button" class="icon-btn" id="btnThemeToggle" title="Changer de thème" aria-label="Changer de thème">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <div id="navAuthArea" class="nav-actions"></div>
+      <button type="button" class="icon-btn nav-toggle" id="btnMobileNavToggle" aria-label="Menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="nav-mobile-panel" id="mobileNavPanel">
+    <a href="./index.html">Accueil</a>
+    <a href="./services.html">Services</a>
+    <a href="./components.html">Composants</a>
+    <a href="./contact.html">Contact</a>
+    <div id="navAuthAreaMobile" style="display:flex; gap:8px; margin-top:10px;"></div>
+  </div>
+</header>
+
+<main>
+
+  <div class="pc-scroll-track" id="pcScrollTrack">
+    <div class="pc-scroll-sticky">
+      <canvas id="pc-canvas" aria-hidden="true"></canvas>
+      <div class="hero">
+        <div class="container">
+          <div class="hero-inner reveal">
+            <img src="./assets/img/logo-placeholder.svg" alt="" class="hero-logo" aria-hidden="true">
+            <h1>Build<span style="color:var(--copper)">.</span>Tech</h1>
+            <p class="slogan" data-setting="slogan">// Votre informatique, notre expertise.</p>
+            <p class="lead" data-setting="hero_lead">
+              Montage PC sur mesure, nettoyage et entretien, changement de composants,
+              vente de matériel d'occasion et neuf, assistance informatique de proximité.
+              Build.Tech s'occupe de votre machine comme si c'était la sienne.
+            </p>
+            <div class="hero-actions">
+              <a href="./services.html" class="btn btn-primary">Découvrir nos services</a>
+              <a href="./components.html" class="btn btn-secondary">Voir les composants</a>
+              <a href="./contact.html" class="btn btn-ghost">Nous contacter</a>
+            </div>
+            <div class="hero-tags">
+              <span class="hero-tag">MONTAGE PC</span>
+              <span class="hero-tag">NETTOYAGE</span>
+              <span class="hero-tag">COMPOSANTS</span>
+              <span class="hero-tag">ASSISTANCE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-hint"><span class="chevron">↓</span> Faites défiler</div>
+    </div>
+  </div>
+
+  <section class="section" id="about">
+    <div class="container">
+      <div class="dim-divider"><span>FIG. 01 — CE QUE NOUS FAISONS</span></div>
+      <div class="section-head reveal">
+        <span class="eyebrow">Notre atelier</span>
+        <h2>Du diagnostic au dernier vissage, on gère tout.</h2>
+        <p data-setting="about_text">
+          Que votre PC rame, qu'il ait besoin d'un dépoussiérage complet, d'une nouvelle
+          carte graphique ou que vous vouliez faire monter une machine de zéro, notre équipe
+          s'occupe de chaque étape et vous tient informé en temps réel.
+        </p>
+      </div>
+      <div class="card-grid">
+        <div class="blueprint-card reveal">
+          <span class="eyebrow">01</span>
+          <h3>Montage sur mesure</h3>
+          <p>Nous sélectionnons et assemblons les composants adaptés à votre budget et à votre usage.</p>
+        </div>
+        <div class="blueprint-card reveal">
+          <span class="eyebrow">02</span>
+          <h3>Nettoyage &amp; entretien</h3>
+          <p>Dépoussiérage, changement de pâte thermique, optimisation des flux d'air.</p>
+        </div>
+        <div class="blueprint-card reveal">
+          <span class="eyebrow">03</span>
+          <h3>Composants &amp; upgrade</h3>
+          <p>Achat, revente et remplacement de pièces : GPU, RAM, stockage, alimentation…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--paper-raised); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+    <div class="container" style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:24px;">
+      <div class="reveal" style="max-width:520px;">
+        <span class="eyebrow">Sur devis</span>
+        <h2 style="margin-top:.4em; font-size:1.5rem;">Une question, un besoin précis ?</h2>
+        <p>Écrivez-nous directement depuis le site : nos échanges se font en temps réel, sans avoir à recharger la page.</p>
+      </div>
+      <a href="./contact.html" class="btn btn-primary reveal">Nous contacter</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="./assets/img/logo-placeholder.svg" alt="">
+        Build.Tech
+      </div>
+      <ul class="footer-links">
+        <li><a href="./services.html">Services</a></li>
+        <li><a href="./components.html">Composants</a></li>
+        <li><a href="./contact.html">Contact</a></li>
+        <li><a href="mailto:build.tech78920@gmail.com">build.tech78920@gmail.com</a></li>
+      </ul>
+    </div>
+    <p class="footer-fine">© <span id="year"></span> Build.Tech — Tous droits réservés.</p>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="./assets/js/config.js"></script>
+<script src="./assets/js/supabase-client.js"></script>
+<script src="./assets/js/utils.js"></script>
+<script src="./assets/js/theme.js"></script>
+<script src="./assets/js/nav.js"></script>
+<script src="./assets/js/site-content.js"></script>
+<script src="./assets/js/hero-scene.js"></script>
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
