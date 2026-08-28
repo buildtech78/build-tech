@@ -1,0 +1,16 @@
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/
+
+# Supabase CLI (si utilisée en local plus tard)
+.supabase/
+supabase/.temp/
+
+# Ne jamais committer de secrets locaux
+.env
+.env.local
+*.pem
