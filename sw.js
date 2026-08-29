@@ -34,14 +34,21 @@ self.addEventListener("activate", function (event) {
 // pour les pages déjà visitées.
 self.addEventListener("fetch", function (event) {
   if (event.request.method !== "GET") return;
+  // Ignore tout ce qui n'est pas http(s) (ex. requêtes chrome-extension://
+  // injectées par des extensions du navigateur) : l'API Cache ne les supporte
+  // pas et les laisser passer sans interception évite les erreurs console.
+  if (!event.request.url.startsWith("http")) return;
+
   event.respondWith(
     fetch(event.request)
       .then(function (response) {
         var copy = response.clone();
-        caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); });
+        caches.open(CACHE_NAME).then(function (cache) { cache.put(event.request, copy); }).catch(function () {});
         return response;
       })
-      .catch(function () { return caches.match(event.request); })
+      .catch(function () {
+        return caches.match(event.request).then(function (cached) { return cached || Response.error(); });
+      })
   );
 });
 
