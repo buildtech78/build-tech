@@ -10,7 +10,7 @@
    ========================================================================== */
 window.BUILD_TECH_CONFIG = {
   SUPABASE_URL: "https://kspaxuvtuzwjotjumakp.supabase.co",
-  SUPABASE_ANON_KEY: "sb_secret_VzQfXF1imvkptV2kBeMxDA_HFR0-Pxm",
+  SUPABASE_ANON_KEY: "sb_publishable_RGtd76UBTPe-VoPnmp_WaA_rnymuz1U",
 
   // Optionnel — uniquement si tu actives les notifications push (voir README, partie 9.2)
   VAPID_PUBLIC_KEY: "sb_publishable_RGtd76UBTPe-VoPnmp_WaA_rnymuz1U"
