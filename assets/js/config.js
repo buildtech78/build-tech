@@ -9,8 +9,8 @@
    partie "3. Créer le projet Supabase").
    ========================================================================== */
 window.BUILD_TECH_CONFIG = {
-  SUPABASE_URL: "https://VOTRE-PROJET.supabase.co",
-  SUPABASE_ANON_KEY: "VOTRE_CLE_ANON_PUBLIC",
+  SUPABASE_URL: "https://kspaxuvtuzwjotjumakp.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_RGtd76UBTPe-VoPnmp_WaA_rnymuz1U",
 
   // Optionnel — uniquement si tu actives les notifications push (voir README, partie 9.2)
   VAPID_PUBLIC_KEY: ""
