@@ -463,14 +463,11 @@ ul{ margin:0; padding:0; }
 .reveal.in{ opacity:1; transform:none; }
 
 /* ==========================================================================
-   SCÈNE 3D DU HERO (vue éclatée de la tour PC au scroll)
+   SCÈNE 3D DU HERO (vue éclatée d'une tour PC générique au scroll)
    ========================================================================== */
 .pc-scroll-track{ position:relative; height:230vh; }
 .pc-scroll-sticky{ position:sticky; top:0; height:100vh; overflow:hidden; }
-#pc-canvas{
-  position:absolute; inset:0; width:100%; height:100%;
-  display:block; pointer-events:none;
-}
+#pc-canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; }
 .pc-scroll-sticky .hero{ position:relative; z-index:1; height:100%; display:flex; align-items:center; padding:0 0 60px; }
 .scroll-hint{
   position:absolute; left:24px; bottom:28px; z-index:2;
@@ -480,14 +477,31 @@ ul{ margin:0; padding:0; }
 }
 .scroll-hint .chevron{ animation:hint-bounce 1.6s ease-in-out infinite; }
 @keyframes hint-bounce{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
-
-/* Repli statique : pas d'animation 3D (reduced-motion, ou WebGL indisponible) */
 .pc-scroll-track.static-hero{ height:auto; }
 .pc-scroll-track.static-hero .pc-scroll-sticky{ position:static; height:auto; overflow:visible; }
-.pc-scroll-track.static-hero #pc-canvas,
-.pc-scroll-track.static-hero .scroll-hint{ display:none; }
+.pc-scroll-track.static-hero #pc-canvas, .pc-scroll-track.static-hero .scroll-hint{ display:none; }
 .pc-scroll-track.static-hero .hero{ padding:96px 0 80px; }
+@media (max-width:700px){ .pc-scroll-track{ height:180vh; } }
+.pc-parallax-hero{ position:relative; min-height:88vh; display:flex; align-items:center; overflow:hidden; }
+.pc-parallax-media{ position:absolute; inset:-12% -6%; z-index:0; overflow:hidden; will-change:transform; }
+.pc-parallax-media img{ width:100%; height:100%; object-fit:cover; display:block; }
+.pc-parallax-overlay{
+  position:absolute; inset:0; z-index:0;
+  background:linear-gradient(180deg, rgba(9,17,27,.6) 0%, rgba(9,17,27,.82) 55%, var(--paper) 100%);
+}
+.pc-parallax-hero .hero{ position:relative; z-index:1; height:100%; padding:110px 0 90px; width:100%; }
+.pc-parallax-hero .hero-inner{ --ink: #F4F7FA; --ink-soft: #C9D6E2; }
+.pc-parallax-hero .hero-inner h1{ color:#F4F7FA; }
+.pc-parallax-hero .slogan{ color:#E58A52; }
+.pc-parallax-hero .hero-tag{ background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.22); color:#E7EDF3; }
+.pc-parallax-hero .btn-ghost{ border-color:rgba(255,255,255,0.35); color:#F4F7FA; }
+.pc-parallax-hero .btn-ghost:hover{ background:rgba(255,255,255,0.08); }
+.pc-parallax-hero .btn-secondary{ border-color:var(--copper); color:#F4F7FA; }
+.pc-parallax-hero .btn-secondary:hover{ background:rgba(193,101,47,0.18); }
 
 @media (max-width:700px){
-  .pc-scroll-track{ height:180vh; }
+  .pc-parallax-hero{ min-height:78vh; }
+}
+@media (prefers-reduced-motion: reduce){
+  .pc-parallax-media{ transform:none !important; }
 }

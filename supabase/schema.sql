@@ -19,6 +19,9 @@ create extension if not exists pgcrypto;
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
+  first_name text,
+  last_name text,
+  avatar_path text,
   theme_preference text not null default 'system' check (theme_preference in ('light','dark','system')),
   suspended boolean not null default false,
   created_at timestamptz not null default now()
@@ -117,12 +120,31 @@ create table public.push_subscriptions (
   created_at timestamptz not null default now()
 );
 
+-- Avis clients (5 étoiles) — un avis par compte, modifiable par son auteur.
+create table public.reviews (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade unique,
+  display_name text,
+  rating int not null check (rating between 1 and 5),
+  comment text,
+  created_at timestamptz not null default now()
+);
+
+-- Compteur de visites anonyme : aucune donnée identifiante n'est stockée,
+-- uniquement la page visitée et l'horodatage, pour des statistiques globales.
+create table public.page_views (
+  id bigint generated always as identity primary key,
+  path text,
+  created_at timestamptz not null default now()
+);
+
 -- Index utiles (performance des listes / filtres les plus fréquents)
 create index idx_conversations_user_id on public.conversations(user_id);
 create index idx_conversations_status on public.conversations(status);
 create index idx_messages_conversation_id on public.messages(conversation_id);
 create index idx_components_category_id on public.components(category_id);
 create index idx_components_available on public.components(available);
+create index idx_page_views_created_at on public.page_views(created_at);
 
 -- Vue : nombre de conversations par utilisateur (évite les requêtes N+1 dans
 -- le panneau Utilisateurs). security_invoker = true : la vue respecte les
@@ -187,7 +209,13 @@ as $$
 declare
   has_invite boolean;
 begin
-  insert into public.profiles (id, email) values (new.id, new.email);
+  insert into public.profiles (id, email, first_name, last_name)
+  values (
+    new.id,
+    new.email,
+    nullif(new.raw_user_meta_data->>'first_name', ''),
+    nullif(new.raw_user_meta_data->>'last_name', '')
+  );
 
   select exists(
     select 1 from public.admin_invites where email = new.email and accepted = false
@@ -270,7 +298,7 @@ alter table public.push_subscriptions enable row level security;
 -- Un utilisateur peut mettre à jour UNIQUEMENT sa préférence de thème
 -- (restriction au niveau colonne, en plus de la restriction au niveau ligne).
 revoke update on public.profiles from authenticated;
-grant update (theme_preference) on public.profiles to authenticated;
+grant update (theme_preference, first_name, last_name, avatar_path) on public.profiles to authenticated;
 
 create policy "profiles_select_own_or_admin" on public.profiles
   for select to authenticated
@@ -353,6 +381,10 @@ create policy "conversations_update_own_or_admin" on public.conversations
   using (user_id = auth.uid() or public.is_admin(auth.uid()))
   with check (user_id = auth.uid() or public.is_admin(auth.uid()));
 
+create policy "conversations_delete_own_or_admin" on public.conversations
+  for delete to authenticated
+  using (user_id = auth.uid() or public.is_admin(auth.uid()));
+
 -- ---- messages ----
 create policy "messages_select_participant" on public.messages
   for select to authenticated
@@ -388,6 +420,39 @@ create policy "push_subscriptions_owner" on public.push_subscriptions
   for all to authenticated
   using (user_id = auth.uid())
   with check (user_id = auth.uid());
+
+-- ---- reviews ----
+alter table public.reviews enable row level security;
+
+create policy "reviews_public_read" on public.reviews
+  for select to anon, authenticated
+  using (true);
+create policy "reviews_insert_own" on public.reviews
+  for insert to authenticated
+  with check (user_id = auth.uid());
+create policy "reviews_update_own" on public.reviews
+  for update to authenticated
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+create policy "reviews_delete_own_or_admin" on public.reviews
+  for delete to authenticated
+  using (user_id = auth.uid() or public.is_admin(auth.uid()));
+
+-- ---- page_views (compteur anonyme) ----
+alter table public.page_views enable row level security;
+
+create policy "page_views_insert_anyone" on public.page_views
+  for insert to anon, authenticated
+  with check (true);
+create policy "page_views_admin_read" on public.page_views
+  for select to authenticated
+  using (public.is_admin(auth.uid()));
+
+-- ============================================================================
+-- TEMPS RÉEL : sans ceci, les messages n'apparaissent qu'après rechargement.
+-- ============================================================================
+alter publication supabase_realtime add table public.messages;
+alter publication supabase_realtime add table public.conversations;
 
 -- ============================================================================
 -- Fin du schéma. Étape suivante : créer le bucket de stockage "components"

@@ -8,7 +8,7 @@ var CACHE_NAME = "buildtech-cache-v1";
 var CORE_ASSETS = [
   "./index.html",
   "./assets/css/style.css",
-  "./assets/img/favicon.svg",
+  "./assets/img/favicon.png",
   "./assets/img/logo-placeholder.svg",
   "./manifest.webmanifest"
 ];
@@ -58,8 +58,8 @@ self.addEventListener("push", function (event) {
   var title = data.title || "Build.Tech";
   var options = {
     body: data.body || "Vous avez reçu une nouvelle réponse sur Build.Tech.",
-    icon: "./assets/img/favicon.svg",
-    badge: "./assets/img/favicon.svg",
+    icon: "./assets/img/favicon.png",
+    badge: "./assets/img/favicon.png",
     data: { url: data.url || "./chat.html" }
   };
   event.waitUntil(self.registration.showNotification(title, options));

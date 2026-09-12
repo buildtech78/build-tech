@@ -32,6 +32,44 @@
       row("Nouveaux utilisateurs (7 derniers jours)", newUsers) +
       row("Total conversations", totalConversations) +
       row("Services actifs", activeServices);
+
+    await loadTraffic();
+    await loadSignupsByMonth();
+  }
+
+  async function loadTraffic() {
+    var now = Date.now();
+    var ranges = [
+      ["Aujourd'hui", new Date(now - 24 * 3600 * 1000).toISOString()],
+      ["7 derniers jours", new Date(now - 7 * 24 * 3600 * 1000).toISOString()],
+      ["30 derniers jours", new Date(now - 30 * 24 * 3600 * 1000).toISOString()]
+    ];
+    var rowsHtml = "";
+    for (var i = 0; i < ranges.length; i++) {
+      var res = await window.sb.from("page_views").select("*", { count: "exact", head: true }).gte("created_at", ranges[i][1]);
+      rowsHtml += row(ranges[i][0], res.count || 0);
+    }
+    var totalRes = await window.sb.from("page_views").select("*", { count: "exact", head: true });
+    rowsHtml += row("Total depuis le lancement", totalRes.count || 0);
+    document.getElementById("trafficTable").innerHTML = rowsHtml;
+  }
+
+  async function loadSignupsByMonth() {
+    var months = [];
+    var now = new Date();
+    for (var i = 5; i >= 0; i--) {
+      var start = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      var end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      months.push({ label: start.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }), start: start, end: end });
+    }
+    var rowsHtml = "";
+    for (var j = 0; j < months.length; j++) {
+      var m = months[j];
+      var res = await window.sb.from("profiles").select("*", { count: "exact", head: true })
+        .gte("created_at", m.start.toISOString()).lt("created_at", m.end.toISOString());
+      rowsHtml += row(m.label, res.count || 0);
+    }
+    document.getElementById("signupsTable").innerHTML = rowsHtml;
   }
 
   function statCard(num, label) {

@@ -30,6 +30,7 @@
       .order("created_at", { ascending: false });
     loading.classList.add("hidden");
     if (res.error) {
+      console.error("[Build.Tech] Erreur chargement composants:", res.error);
       toast("Impossible de charger les composants.", "error");
       return;
     }

@@ -15,6 +15,7 @@
     loading.classList.add("hidden");
 
     if (res.error) {
+      console.error("[Build.Tech] Erreur chargement services:", res.error);
       toast("Impossible de charger les services.", "error");
       return;
     }

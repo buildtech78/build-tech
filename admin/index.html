@@ -6,7 +6,7 @@
 <title>Tableau de bord — Administration Build.Tech</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#10233A">
-<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/img/favicon.png" type="image/png">
 <link rel="stylesheet" href="../assets/css/style.css">
 <script>
   (function(){ var p=localStorage.getItem("buildtech-theme")||"system";
@@ -39,6 +39,7 @@
     <a href="./conversations.html">💬 Conversations</a>
     <a href="./users.html">👤 Utilisateurs</a>
     <a href="./admins.html">🔑 Administrateurs</a>
+    <a href="./security.html">🛡️ Sécurité (A2F)</a>
     <a href="./settings.html">⚙️ Paramètres du site</a>
   </nav>
 
@@ -59,6 +60,23 @@
         <tbody id="statDetails">
           <tr><td>Chargement…</td></tr>
         </tbody>
+      </table>
+    </div>
+
+    <div class="dim-divider" style="margin-top:36px;"><span>FRÉQUENTATION (VISITES ANONYMES)</span></div>
+    <p class="field-hint">Comptage global des pages vues, sans identifier qui que ce soit (aucune adresse IP ni identifiant stocké).</p>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Période</th><th>Visites</th></tr></thead>
+        <tbody id="trafficTable"><tr><td colspan="2">Chargement…</td></tr></tbody>
+      </table>
+    </div>
+
+    <div class="dim-divider" style="margin-top:36px;"><span>NOUVEAUX COMPTES PAR MOIS</span></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Mois</th><th>Nouvelles inscriptions</th></tr></thead>
+        <tbody id="signupsTable"><tr><td colspan="2">Chargement…</td></tr></tbody>
       </table>
     </div>
   </main>

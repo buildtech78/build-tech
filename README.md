@@ -162,6 +162,13 @@ Sur la page qui s'affiche, sous "…or upload an existing file" :
 > (menu de gauche) : tu dois voir `profiles`, `admins`, `services`,
 > `components`, `conversations`, `messages`, etc.
 
+> 🆕 **Si tu avais déjà exécuté une version précédente de `schema.sql`**,
+> exécute en plus **`supabase/migration_02_features.sql`** (même méthode :
+> New query → coller → Run). Il ajoute le prénom/nom, la photo de profil,
+> les avis clients, le compteur de visites, la suppression de conversation
+> et active le temps réel du chat. Si tu pars d'une installation neuve,
+> `schema.sql` contient déjà tout, ce fichier n'est pas nécessaire.
+
 ---
 
 ## 5. Configurer le stockage des images
@@ -182,6 +189,13 @@ Sur la page qui s'affiche, sous "…or upload an existing file" :
    **`supabase/storage_policies.sql`**, puis **Run**. Cela empêche
    n'importe qui d'uploader ou supprimer des photos : seuls les
    administrateurs le pourront.
+
+### 5.1 Bucket pour les photos de profil
+
+Répète les étapes 2 à 4 ci-dessus pour créer un second bucket nommé
+exactement **`avatars`**, également **Public**. Les règles de sécurité de
+ce bucket sont déjà incluses dans `supabase/storage_policies.sql` (chaque
+utilisateur ne peut modifier que sa propre photo).
 
 ---
 
@@ -276,34 +290,39 @@ sécurisé, il se crée en deux temps :
 ## 10. Déployer les fonctions serveur (Edge Functions)
 
 Les fonctions dans `supabase/functions/` gèrent les actions sensibles
-(suspendre/supprimer un compte, gérer les admins) et les emails. Pour les
-déployer, tu as besoin de l'outil en ligne de commande Supabase CLI.
+(suspendre/supprimer un compte, gérer les admins) et les emails.
 
-1. Installe Node.js si ce n'est pas déjà fait (**https://nodejs.org**,
-   version LTS).
-2. Dans un terminal, à la racine du projet, installe la CLI Supabase :
+**Méthode simple, sans rien installer (recommandée) :**
+
+1. Dans Supabase, menu de gauche → **Edge Functions**.
+2. Clique sur **Deploy a new function** → **Via Editor**.
+3. Nomme-la exactement `admin-actions`, efface le code d'exemple, colle
+   tout le contenu de `supabase/functions/admin-actions/index.ts`.
+   Dans les paramètres de la fonction, désactive la vérification JWT
+   (« JWT verification » / « Enforce JWT ») — la fonction vérifie
+   elle-même les droits de l'appelant. Clique sur **Deploy function**.
+4. Répète pour `notify-new-message` et `send-push` avec leurs fichiers
+   respectifs, toujours JWT désactivé.
+5. (Pour les emails, plus tard) Cherche un lien **Secrets** / **Manage
+   secrets** dans la section Edge Functions pour ajouter des variables
+   sans terminal : un champ nom + un champ valeur par secret (voir partie
+   11.2 pour la liste).
+
+<details>
+<summary>Méthode alternative avec la ligne de commande (si tu préfères)</summary>
+
+1. Installe Node.js si besoin (**https://nodejs.org**, version LTS).
+2. Dans un terminal, à la racine du projet :
    ```
    npm install supabase --save-dev
-   ```
-3. Connecte-toi :
-   ```
    npx supabase login
-   ```
-   (Ouvre une page de connexion dans ton navigateur.)
-4. Lie ton dossier local au projet Supabase (le "project ref" se trouve
-   dans **Project Settings → General**) :
-   ```
    npx supabase link --project-ref TON-PROJECT-REF
-   ```
-5. Déploie les fonctions :
-   ```
    npx supabase functions deploy admin-actions --no-verify-jwt
    npx supabase functions deploy notify-new-message --no-verify-jwt
    npx supabase functions deploy send-push --no-verify-jwt
    ```
-   (`--no-verify-jwt` est nécessaire car ces fonctions vérifient
-   elles-mêmes les droits, y compris pour des appels internes de
-   Supabase comme les Database Webhooks.)
+3. Secrets via terminal : `npx supabase secrets set NOM=valeur`.
+</details>
 
 Tu peux vérifier le déploiement dans Supabase → **Edge Functions**.
 
@@ -402,6 +421,20 @@ Pour rendre un autre texte modifiable de la même façon :
    `assets/js/admin-settings.js` (objet `FIELDS`).
 3. `assets/js/site-content.js` (déjà inclus sur `index.html`) applique
    automatiquement la valeur enregistrée à l'affichage.
+
+---
+
+## 13.1 Activer l'A2F sur ton compte administrateur
+
+1. Assure-toi que la MFA est activée sur le projet : Supabase →
+   **Authentication → Providers/Settings**, section MFA, active "TOTP" si
+   ce n'est pas déjà le cas (activé par défaut en général).
+2. Sur le site, connecte-toi puis va sur `/admin/security.html` →
+   **Activer l'A2F**.
+3. Scanne le QR code avec Google Authenticator, Authy ou équivalent, puis
+   saisis le code à 6 chiffres pour confirmer.
+4. À chaque connexion suivante, une étape supplémentaire (`mfa-verify.html`)
+   demandera ce code avant d'accéder à `/admin/`.
 
 ---
 
@@ -508,3 +541,19 @@ avec `status = 'active'`, et que l'`user_id` correspond bien à ton
 **Le lien "mot de passe oublié" ne fonctionne pas.**
 Vérifie que l'URL de `reset-password.html` est bien dans la liste des
 **Redirect URLs** autorisées (partie 6).
+
+**Les services ou les composants n'apparaissent pas sur le site, sans
+message d'erreur visible.**
+Une vraie erreur Supabase apparaît maintenant dans la console du
+navigateur (F12 → Console) grâce à un correctif de journalisation — regarde
+ce qu'elle affiche. Les causes les plus fréquentes :
+- Aucune ligne n'existe encore dans la table (ajoute-en depuis `/admin`,
+  ou exécute `supabase/seed.sql`).
+- La colonne `active` (services) ou `available` (composants) est à
+  `false` pour toutes les lignes.
+- Le fichier `schema.sql` n'a pas pu s'exécuter en entier (une erreur en
+  plein milieu arrête tout ce qui suit) — relance-le une deuxième fois
+  dans une base neuve, ou compare les policies existantes dans **Database
+  → Policies** avec celles du fichier.
+- Les photos de composants renvoient une erreur 400/403 : le bucket
+  `components` n'a pas été créé en **Public** (partie 5).

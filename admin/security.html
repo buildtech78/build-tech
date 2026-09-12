@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Administrateurs — Administration Build.Tech</title>
+<title>Sécurité — Administration Build.Tech</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#10233A">
 <link rel="icon" href="../assets/img/favicon.png" type="image/png">
@@ -38,28 +38,30 @@
     <a href="./components.html">🧩 Composants</a>
     <a href="./conversations.html">💬 Conversations</a>
     <a href="./users.html">👤 Utilisateurs</a>
-    <a href="./admins.html" class="active">🔑 Administrateurs</a>
+    <a href="./admins.html">🔑 Administrateurs</a>
+    <a href="./security.html" class="active">🛡️ Sécurité (A2F)</a>
     <a href="./settings.html">⚙️ Paramètres du site</a>
   </nav>
 
   <main class="admin-main">
-    <h1 style="font-size:1.5rem;">Administrateurs</h1>
-    <p>Le compte centre (propriétaire) ne peut jamais être retiré depuis cette interface.</p>
+    <h1 style="font-size:1.5rem;">Sécurité du compte</h1>
+    <p>Active l'authentification à deux facteurs (A2F) sur ton compte administrateur pour empêcher une connexion même si ton mot de passe fuite un jour.</p>
 
-    <div class="blueprint-card hidden" id="ownerOnlyAddForm" style="margin:20px 0;">
-      <h3>Ajouter un administrateur</h3>
-      <p>Si l'email correspond déjà à un compte, il devient administrateur immédiatement. Sinon, il le deviendra automatiquement dès son inscription.</p>
-      <form id="addAdminForm" style="display:flex; gap:8px; flex-wrap:wrap;">
-        <input type="email" id="newAdminEmail" placeholder="email@exemple.com" required style="flex:1; min-width:220px; padding:11px 13px; border:1px solid var(--line); border-radius:4px; background:var(--paper); color:var(--ink);">
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-      </form>
+    <div id="mfaStatus" class="blueprint-card" style="max-width:520px; margin-top:20px;">
+      <div class="loading-row"><span class="spinner"></span> Chargement…</div>
     </div>
 
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead><tr><th>Email</th><th>Ajouté le</th><th>Statut</th><th>Actions</th></tr></thead>
-        <tbody id="adminsTableBody"><tr><td colspan="4">Chargement…</td></tr></tbody>
-      </table>
+    <div id="enrollCard" class="blueprint-card hidden" style="max-width:520px; margin-top:20px;">
+      <h3>Activer l'A2F</h3>
+      <p>Scanne ce QR code avec une application d'authentification (Google Authenticator, Authy, 1Password...), puis saisis le code à 6 chiffres généré.</p>
+      <div id="qrWrap" style="margin:16px 0; text-align:center;"></div>
+      <p class="field-hint">Ou saisis manuellement cette clé dans ton application : <code id="secretCode"></code></p>
+      <div class="field">
+        <label for="enrollCode">Code à 6 chiffres</label>
+        <input type="text" id="enrollCode" inputmode="numeric" maxlength="6" placeholder="123456">
+      </div>
+      <button type="button" class="btn btn-primary" id="btnConfirmEnroll">Vérifier et activer</button>
+      <button type="button" class="btn btn-ghost" id="btnCancelEnroll">Annuler</button>
     </div>
   </main>
 </div>
@@ -71,7 +73,6 @@
 <script src="../assets/js/theme.js"></script>
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/admin-guard.js"></script>
-<script src="../assets/js/admin-actions-client.js"></script>
-<script src="../assets/js/admin-admins.js"></script>
+<script src="../assets/js/admin-mfa.js"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mon profil — Build.Tech</title>
 <meta name="theme-color" content="#10233A">
-<link rel="icon" href="./assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="./assets/img/favicon.png" type="image/png">
 <link rel="stylesheet" href="./assets/css/style.css">
 <script>
   (function(){ var p=localStorage.getItem("buildtech-theme")||"system";
@@ -25,6 +25,7 @@
       <li><a href="./index.html">Accueil</a></li>
       <li><a href="./services.html">Services</a></li>
       <li><a href="./components.html">Composants</a></li>
+      <li><a href="./avis.html">Avis</a></li>
       <li><a href="./contact.html">Contact</a></li>
     </ul>
     <div class="nav-actions">
@@ -41,6 +42,7 @@
     <a href="./index.html">Accueil</a>
     <a href="./services.html">Services</a>
     <a href="./components.html">Composants</a>
+    <a href="./avis.html">Avis</a>
     <a href="./contact.html">Contact</a>
     <div id="navAuthAreaMobile" style="display:flex; gap:8px; margin-top:10px;"></div>
   </div>
@@ -54,7 +56,9 @@
 
       <div class="profile-grid" style="margin-top:24px;">
         <aside class="profile-side">
-          <div class="profile-avatar" id="avatarInitial">–</div>
+          <div class="profile-avatar" id="avatarInitial" style="overflow:hidden; padding:0;">–</div>
+          <label for="avatarInput" class="btn btn-ghost btn-sm" style="margin:10px 0; cursor:pointer;">Changer la photo</label>
+          <input type="file" id="avatarInput" accept="image/png,image/jpeg,image/webp" style="display:none;">
           <ul class="kv-list">
             <li><span class="k">Email</span><span id="pEmail">—</span></li>
             <li><span class="k">Membre depuis</span><span id="pCreatedAt">—</span></li>
@@ -70,6 +74,14 @@
         </aside>
 
         <div>
+          <form class="blueprint-card reveal" id="nameForm" style="margin-bottom:20px;">
+            <h3>Mes informations</h3>
+            <p>Facultatif — utilisé par exemple pour signer un avis client.</p>
+            <div class="field"><label for="firstName">Prénom</label><input type="text" id="firstName" maxlength="80"></div>
+            <div class="field"><label for="lastName">Nom</label><input type="text" id="lastName" maxlength="80"></div>
+            <button type="submit" class="btn btn-secondary btn-sm">Enregistrer</button>
+          </form>
+
           <div class="blueprint-card reveal">
             <h3>Mes conversations</h3>
             <p>Retrouvez ici l'historique de vos échanges avec Build.Tech.</p>

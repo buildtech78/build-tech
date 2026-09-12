@@ -51,6 +51,10 @@ function reopenConversation(conversationId) {
   return window.sb.from("conversations").update({ status: "open" }).eq("id", conversationId);
 }
 
+function deleteConversation(conversationId) {
+  return window.sb.from("conversations").delete().eq("id", conversationId);
+}
+
 function renderMessageBubble(msg, currentRole) {
   var mine = msg.sender_role === currentRole;
   var div = document.createElement("div");

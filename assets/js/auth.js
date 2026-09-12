@@ -58,6 +58,8 @@
       var email = document.getElementById("email").value.trim();
       var password = document.getElementById("password").value;
       var password2 = document.getElementById("password2").value;
+      var firstName = document.getElementById("firstName").value.trim();
+      var lastName = document.getElementById("lastName").value.trim();
       var valid = true;
       if (!email) { markInvalid("fieldEmail", true); valid = false; } else markInvalid("fieldEmail", false);
       if (!password || password.length < 6) { markInvalid("fieldPassword", true); valid = false; } else markInvalid("fieldPassword", false);
@@ -66,7 +68,11 @@
 
       var btn = document.getElementById("btnRegister");
       setButtonLoading(btn, true, "Création du compte…");
-      var res = await window.sb.auth.signUp({ email: email, password: password });
+      var res = await window.sb.auth.signUp({
+        email: email,
+        password: password,
+        options: { data: { first_name: firstName || null, last_name: lastName || null } }
+      });
       setButtonLoading(btn, false);
 
       if (res.error) {

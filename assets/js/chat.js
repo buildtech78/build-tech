@@ -77,9 +77,12 @@
     thread.innerHTML =
       '<div class="chat-thread-header">' +
         '<div><button type="button" class="btn btn-ghost btn-sm" id="btnBackToList" style="margin-right:8px;">← Retour</button>' + escapeHtml(conv.subject || "Conversation") + "</div>" +
-        (conv.status === "open"
-          ? '<button type="button" class="btn btn-ghost btn-sm" id="btnCloseConv">Fermer la conversation</button>'
-          : '<span class="badge badge-muted">Conversation fermée</span>') +
+        '<div class="row-actions">' +
+          (conv.status === "open"
+            ? '<button type="button" class="btn btn-ghost btn-sm" id="btnCloseConv">Fermer</button>'
+            : '<span class="badge badge-muted">Fermée</span>') +
+          '<button type="button" class="btn btn-danger btn-sm" id="btnDeleteConv">Supprimer</button>' +
+        "</div>" +
       "</div>" +
       '<div class="chat-messages" id="chatMessages"><div class="loading-row"><span class="spinner"></span> Chargement des messages…</div></div>' +
       (conv.status === "open"
@@ -88,6 +91,16 @@
 
     document.getElementById("btnBackToList").addEventListener("click", function () {
       document.getElementById("chatList").classList.remove("hide-on-mobile-thread-open");
+    });
+
+    var deleteBtn = document.getElementById("btnDeleteConv");
+    deleteBtn.addEventListener("click", async function () {
+      if (!confirm("Supprimer définitivement cette conversation et tous ses messages ? Cette action est irréversible.")) return;
+      var res = await deleteConversation(id);
+      if (res.error) { toast("Suppression impossible.", "error"); return; }
+      activeConversationId = null;
+      document.getElementById("chatThread").innerHTML = '<div class="empty-state"><div class="icon">💬</div><p>Sélectionnez une conversation pour l\'ouvrir.</p></div>';
+      loadConversations();
     });
 
     var closeBtn = document.getElementById("btnCloseConv");

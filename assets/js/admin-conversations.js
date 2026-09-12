@@ -82,6 +82,7 @@
           (conv.status === "open"
             ? '<button type="button" class="btn btn-ghost btn-sm" id="btnCloseConv">Fermer</button>'
             : '<button type="button" class="btn btn-ghost btn-sm" id="btnReopenConv">Réouvrir</button>') +
+          '<button type="button" class="btn btn-danger btn-sm" id="btnDeleteConv">Supprimer</button>' +
         "</div>" +
       "</div>" +
       '<div class="chat-messages" id="chatMessages"><div class="loading-row"><span class="spinner"></span> Chargement…</div></div>' +
@@ -94,6 +95,14 @@
     if (closeBtn) closeBtn.addEventListener("click", async function () { await closeConversation(id); loadConversations(); });
     var reopenBtn = document.getElementById("btnReopenConv");
     if (reopenBtn) reopenBtn.addEventListener("click", async function () { await reopenConversation(id); loadConversations(); });
+    document.getElementById("btnDeleteConv").addEventListener("click", async function () {
+      if (!confirm("Supprimer définitivement cette conversation et tous ses messages ? Cette action est irréversible.")) return;
+      var res = await deleteConversation(id);
+      if (res.error) { toast("Suppression impossible.", "error"); return; }
+      activeConversationId = null;
+      document.getElementById("chatThread").innerHTML = '<div class="empty-state"><div class="icon">💬</div><p>Sélectionnez une conversation.</p></div>';
+      loadConversations();
+    });
 
     document.getElementById("composerForm").addEventListener("submit", async function (e) {
       e.preventDefault();

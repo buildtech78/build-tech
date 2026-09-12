@@ -136,3 +136,11 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register(swPath).catch(function () { /* silencieux : la PWA est un bonus, pas un pré-requis */ });
   });
 }
+
+/* Compteur de visites anonyme : un simple enregistrement (page + horodatage),
+   aucune donnée identifiante. N'est jamais exécuté sur les pages /admin/. */
+if (window.location.pathname.indexOf("/admin/") === -1) {
+  document.addEventListener("DOMContentLoaded", function () {
+    if (window.sb) window.sb.from("page_views").insert({ path: window.location.pathname }).then(function () {});
+  });
+}

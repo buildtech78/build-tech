@@ -3,12 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Services — Build.Tech</title>
-<meta name="description" content="Montage PC, nettoyage, changement de composants : découvrez les services proposés par Build.Tech.">
+<title>Avis clients — Build.Tech</title>
+<meta name="description" content="Découvrez les avis de nos clients et laissez le vôtre.">
 <meta name="theme-color" content="#10233A">
 <link rel="icon" href="./assets/img/favicon.png" type="image/png">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="stylesheet" href="./assets/css/style.css">
+<style>
+  .star-input{ display:flex; gap:6px; font-size:1.8rem; margin-bottom:16px; }
+  .star-input button{ background:none; border:none; cursor:pointer; color:var(--line-strong); padding:0; line-height:1; }
+  .star-input button.active{ color:var(--copper); }
+  .review-card .stars{ color:var(--copper); letter-spacing:2px; margin-bottom:6px; }
+  .review-card .meta{ font-size:.78rem; color:var(--ink-soft); }
+</style>
 <script>
   (function(){ var p=localStorage.getItem("buildtech-theme")||"system";
   var r=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p;
@@ -53,16 +60,34 @@
 <main>
   <section class="section" style="padding-top:56px;">
     <div class="container">
-      <span class="eyebrow">Catalogue</span>
-      <h1 style="font-size:clamp(1.8rem,4vw,2.6rem); margin-top:.3em;">Nos services</h1>
-      <p style="max-width:560px;">Les tarifs ci-dessous sont indicatifs et gérés en direct depuis notre panneau d'administration : ils reflètent toujours nos prix actuels.</p>
+      <span class="eyebrow">Retours clients</span>
+      <h1 style="font-size:clamp(1.8rem,4vw,2.6rem); margin-top:.3em;">Avis</h1>
+      <p id="avgSummary" style="max-width:560px;">Chargement des avis…</p>
 
-      <div id="servicesLoading" class="loading-row"><span class="spinner"></span> Chargement des services…</div>
-      <div id="servicesEmpty" class="empty-state hidden">
-        <div class="icon">🛠️</div>
-        <p>Aucun service n'est disponible pour le moment.</p>
+      <div class="blueprint-card reveal" id="reviewFormCard" style="max-width:520px; margin:24px 0;">
+        <h3 id="reviewFormTitle">Laisser un avis</h3>
+        <p id="reviewFormHint">Connectez-vous pour laisser un avis.</p>
+        <form id="reviewForm" class="hidden">
+          <div class="star-input" id="starInput">
+            <button type="button" data-star="1">★</button>
+            <button type="button" data-star="2">★</button>
+            <button type="button" data-star="3">★</button>
+            <button type="button" data-star="4">★</button>
+            <button type="button" data-star="5">★</button>
+          </div>
+          <input type="hidden" id="ratingValue" value="0">
+          <div class="field">
+            <label for="reviewComment">Votre commentaire (facultatif)</label>
+            <textarea id="reviewComment" maxlength="600"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" id="btnSubmitReview">Publier mon avis</button>
+        </form>
       </div>
-      <div id="servicesGrid" class="card-grid"></div>
+
+      <div class="dim-divider"><span>TOUS LES AVIS</span></div>
+      <div id="reviewsLoading" class="loading-row"><span class="spinner"></span> Chargement…</div>
+      <div id="reviewsEmpty" class="empty-state hidden"><div class="icon">⭐</div><p>Aucun avis pour le moment.</p></div>
+      <div id="reviewsList" style="display:flex; flex-direction:column; gap:14px; max-width:640px;"></div>
     </div>
   </section>
 </main>
@@ -76,7 +101,6 @@
         <li><a href="./components.html">Composants</a></li>
         <li><a href="./avis.html">Avis</a></li>
         <li><a href="./contact.html">Contact</a></li>
-        <li><a href="mailto:build.tech78920@gmail.com">build.tech78920@gmail.com</a></li>
       </ul>
     </div>
     <p class="footer-fine">© <span id="year"></span> Build.Tech — Tous droits réservés.</p>
@@ -89,8 +113,7 @@
 <script src="./assets/js/utils.js"></script>
 <script src="./assets/js/theme.js"></script>
 <script src="./assets/js/nav.js"></script>
-<script src="./assets/js/contact-flow.js"></script>
-<script src="./assets/js/services.js"></script>
+<script src="./assets/js/reviews.js"></script>
 <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
 </body>
 </html>

@@ -1,7 +1,8 @@
 /* ==========================================================================
-   BUILD.TECH — Scène héro 3D : vraie tour PC (vitre + composants) qui se
-   désassemble au fil du scroll. Rendu en matériaux pleins + éclairage
-   (pas du fil de fer) pour un rendu produit crédible.
+   BUILD.TECH — Scène héro 3D : tour PC générique (vitre + composants) qui se
+   désassemble au fil du scroll. Modèle générique construit à partir de
+   primitives (aucune marque, aucun modèle tiers) — matériaux pleins +
+   éclairage pour un rendu produit crédible, pas du fil de fer.
    Repli automatique si prefers-reduced-motion ou si WebGL indisponible.
    ========================================================================== */
 (function () {
@@ -33,7 +34,6 @@
   var camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
   camera.position.set(0.6, 0.5, 9);
 
-  // ---- Éclairage ----
   var ambient = new THREE.AmbientLight(0x3b4250, 0.65);
   scene.add(ambient);
   var key = new THREE.DirectionalLight(0xffffff, 1.15);
@@ -46,7 +46,6 @@
   rim.position.set(-3, -1.5, -4);
   scene.add(rim);
 
-  // ---- Ombre de contact (simple dégradé radial dessiné sur canvas) ----
   var shadowCanvas = document.createElement("canvas");
   shadowCanvas.width = shadowCanvas.height = 256;
   var sctx = shadowCanvas.getContext("2d");
@@ -64,7 +63,6 @@
   shadowMesh.position.y = -2.05;
   scene.add(shadowMesh);
 
-  // ---- Matériaux ----
   var caseMat = new THREE.MeshStandardMaterial({ color: 0x15181d, metalness: 0.55, roughness: 0.42 });
   var glassMat = new THREE.MeshPhysicalMaterial({
     color: 0x9fc2e0, transparent: true, opacity: 0.2, roughness: 0.08, metalness: 0,
@@ -86,19 +84,15 @@
     g.add(hub);
     var bladeGeo = new THREE.BoxGeometry(radius * 0.8, 0.025, radius * 0.24);
     bladeGeo.translate(radius * 0.46, 0, 0);
-    var bladeCount = 7;
     var blades = new THREE.Group();
-    for (var i = 0; i < bladeCount; i++) {
+    for (var i = 0; i < 7; i++) {
       var blade = new THREE.Mesh(bladeGeo, fanFrameMat);
-      blade.rotation.set(0.4, 0, (i / bladeCount) * Math.PI * 2);
+      blade.rotation.set(0.4, 0, (i / 7) * Math.PI * 2);
       blades.add(blade);
     }
     g.add(blades);
     g.userData.blades = blades;
-    if (withRing) {
-      var ring = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.97, 0.022, 8, 24), accentMat);
-      g.add(ring);
-    }
+    if (withRing) g.add(new THREE.Mesh(new THREE.TorusGeometry(radius * 0.97, 0.022, 8, 24), accentMat));
     return g;
   }
 
@@ -161,20 +155,14 @@
     return g;
   }
 
-  // ---- Assemblage ----
   var group = new THREE.Group();
   scene.add(group);
 
-  var backPlate = new THREE.Mesh(new THREE.BoxGeometry(2.0, 3.6, 0.06), caseMat);
-  backPlate.position.set(0, 0, -0.85);
-  var topPlate = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.06, 1.7), caseMat);
-  topPlate.position.set(0, 1.8, 0);
-  var bottomPlate = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.06, 1.7), caseMat);
-  bottomPlate.position.set(0, -1.8, 0);
-  var leftPlate = new THREE.Mesh(new THREE.BoxGeometry(0.06, 3.6, 1.7), caseMat);
-  leftPlate.position.set(-1.0, 0, 0);
-  var rightPlate = new THREE.Mesh(new THREE.BoxGeometry(0.06, 3.6, 1.7), caseMat);
-  rightPlate.position.set(1.0, 0, 0);
+  var backPlate = new THREE.Mesh(new THREE.BoxGeometry(2.0, 3.6, 0.06), caseMat); backPlate.position.set(0, 0, -0.85);
+  var topPlate = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.06, 1.7), caseMat); topPlate.position.set(0, 1.8, 0);
+  var bottomPlate = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.06, 1.7), caseMat); bottomPlate.position.set(0, -1.8, 0);
+  var leftPlate = new THREE.Mesh(new THREE.BoxGeometry(0.06, 3.6, 1.7), caseMat); leftPlate.position.set(-1.0, 0, 0);
+  var rightPlate = new THREE.Mesh(new THREE.BoxGeometry(0.06, 3.6, 1.7), caseMat); rightPlate.position.set(1.0, 0, 0);
   [backPlate, topPlate, bottomPlate, leftPlate, rightPlate].forEach(function (m) { group.add(m); });
 
   var glassPanel = new THREE.Mesh(new THREE.BoxGeometry(2.0, 3.6, 0.05), glassMat);

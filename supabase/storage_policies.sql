@@ -24,3 +24,27 @@ using (bucket_id = 'components' and public.is_admin(auth.uid()));
 create policy "components_bucket_admin_delete"
 on storage.objects for delete
 using (bucket_id = 'components' and public.is_admin(auth.uid()));
+
+-- ============================================================================
+-- Bucket "avatars" — photos de profil. Crée-le depuis le Dashboard
+-- (Storage → New bucket → nom EXACT : avatars → Public bucket : activé)
+-- avant d'exécuter la partie ci-dessous.
+-- ============================================================================
+
+create policy "avatars_bucket_public_read"
+on storage.objects for select
+using (bucket_id = 'avatars');
+
+-- Chaque utilisateur ne peut envoyer/modifier/supprimer que SA PROPRE photo,
+-- stockée sous le chemin {son_user_id}/avatar.ext.
+create policy "avatars_bucket_owner_insert"
+on storage.objects for insert
+with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "avatars_bucket_owner_update"
+on storage.objects for update
+using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "avatars_bucket_owner_delete"
+on storage.objects for delete
+using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);

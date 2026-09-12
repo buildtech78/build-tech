@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nouveau mot de passe — Build.Tech</title>
+<title>Vérification en deux étapes — Build.Tech</title>
 <meta name="theme-color" content="#10233A">
 <link rel="icon" href="./assets/img/favicon.png" type="image/png">
 <link rel="stylesheet" href="./assets/css/style.css">
@@ -21,33 +21,22 @@
       <img src="./assets/img/logo.png" alt="Logo Build.Tech" class="logo-mark">
       Build<span class="dot">.</span>Tech
     </a>
-    <ul class="nav-links">
-      <li><a href="./index.html">Accueil</a></li>
-      <li><a href="./services.html">Services</a></li>
-      <li><a href="./components.html">Composants</a></li>
-      <li><a href="./avis.html">Avis</a></li>
-      <li><a href="./contact.html">Contact</a></li>
-    </ul>
-    <div class="nav-actions">
-      <div id="navAuthArea" class="nav-actions"></div>
-    </div>
+    <div class="nav-actions"><div id="navAuthArea" class="nav-actions"></div></div>
   </div>
 </header>
 
 <main>
   <section class="section">
     <div class="container">
-      <form class="form-card" id="resetForm" novalidate>
-        <h1>Nouveau mot de passe</h1>
-        <p class="form-sub">Choisissez un nouveau mot de passe pour votre compte.</p>
-        <div id="resetAlert"></div>
-        <div class="field" id="fieldPassword">
-          <label for="password">Nouveau mot de passe</label>
-          <input type="password" id="password" name="password" autocomplete="new-password" minlength="6" required>
-          <div class="field-hint">6 caractères minimum.</div>
-          <div class="field-error">Le mot de passe doit contenir au moins 6 caractères.</div>
+      <form class="form-card" id="mfaForm" novalidate>
+        <h1>Vérification en deux étapes</h1>
+        <p class="form-sub">Saisis le code à 6 chiffres généré par ton application d'authentification.</p>
+        <div id="mfaAlert"></div>
+        <div class="field">
+          <label for="code">Code</label>
+          <input type="text" id="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required>
         </div>
-        <button type="submit" class="btn btn-primary btn-block" id="btnReset">Mettre à jour le mot de passe</button>
+        <button type="submit" class="btn btn-primary btn-block" id="btnVerify">Vérifier</button>
       </form>
     </div>
   </section>
@@ -58,6 +47,7 @@
 <script src="./assets/js/supabase-client.js"></script>
 <script src="./assets/js/utils.js"></script>
 <script src="./assets/js/theme.js"></script>
-<script src="./assets/js/auth.js"></script>
+<script src="./assets/js/nav.js"></script>
+<script src="./assets/js/mfa-verify.js"></script>
 </body>
 </html>

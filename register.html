@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Créer un compte — Build.Tech</title>
 <meta name="theme-color" content="#10233A">
-<link rel="icon" href="./assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="./assets/img/favicon.png" type="image/png">
 <link rel="stylesheet" href="./assets/css/style.css">
 <script>
   (function(){ var p=localStorage.getItem("buildtech-theme")||"system";
@@ -25,6 +25,7 @@
       <li><a href="./index.html">Accueil</a></li>
       <li><a href="./services.html">Services</a></li>
       <li><a href="./components.html">Composants</a></li>
+      <li><a href="./avis.html">Avis</a></li>
       <li><a href="./contact.html">Contact</a></li>
     </ul>
     <div class="nav-actions">
@@ -41,6 +42,7 @@
     <a href="./index.html">Accueil</a>
     <a href="./services.html">Services</a>
     <a href="./components.html">Composants</a>
+    <a href="./avis.html">Avis</a>
     <a href="./contact.html">Contact</a>
     <div id="navAuthAreaMobile" style="display:flex; gap:8px; margin-top:10px;"></div>
   </div>
@@ -53,6 +55,14 @@
         <h1>Créer un compte</h1>
         <p class="form-sub">Juste un email et un mot de passe, rien de plus.</p>
         <div id="registerAlert"></div>
+        <div class="field" id="fieldFirstName">
+          <label for="firstName">Prénom <span class="field-hint" style="display:inline;">(facultatif)</span></label>
+          <input type="text" id="firstName" name="firstName" autocomplete="given-name" maxlength="80">
+        </div>
+        <div class="field" id="fieldLastName">
+          <label for="lastName">Nom <span class="field-hint" style="display:inline;">(facultatif)</span></label>
+          <input type="text" id="lastName" name="lastName" autocomplete="family-name" maxlength="80">
+        </div>
         <div class="field" id="fieldEmail">
           <label for="email">Adresse email</label>
           <input type="email" id="email" name="email" autocomplete="email" required>

@@ -20,6 +20,13 @@
       window.location.href = "../index.html";
       return;
     }
+
+    var aalRes = await window.sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (!aalRes.error && aalRes.data.nextLevel === "aal2" && aalRes.data.currentLevel !== "aal2") {
+      window.location.href = "../mfa-verify.html?next=" + encodeURIComponent("admin/" + window.location.pathname.split("/").pop());
+      return;
+    }
+
     window.BUILD_TECH_IS_OWNER = !!adminRes.data.is_owner;
     window.dispatchEvent(new CustomEvent("buildtech:admin-ready", { detail: { session: session, isOwner: window.BUILD_TECH_IS_OWNER } }));
   });
