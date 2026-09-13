@@ -5,6 +5,7 @@
   var currentRating = 0;
   var session = null;
   var profile = null;
+  var isAdmin = false;
 
   function renderStars(n) {
     var full = "★".repeat(n);
@@ -33,14 +34,29 @@
       avg.toFixed(1) + " / 5 · basé sur " + reviews.length + " avis" + (reviews.length > 1 ? "" : "");
 
     list.innerHTML = reviews.map(function (r) {
+      var canDelete = session && (isAdmin || r.user_id === session.user.id);
       return (
         '<div class="blueprint-card review-card">' +
-          '<div class="stars">' + renderStars(r.rating) + "</div>" +
+          '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">' +
+            '<div class="stars">' + renderStars(r.rating) + "</div>" +
+            (canDelete ? '<button type="button" class="btn btn-danger btn-sm" data-delete-review="' + r.id + '">Supprimer</button>' : "") +
+          "</div>" +
           (r.comment ? "<p>" + escapeHtml(r.comment) + "</p>" : "") +
           '<div class="meta">' + escapeHtml(r.display_name || "Client Build.Tech") + " · " + formatDate(r.created_at) + "</div>" +
         "</div>"
       );
     }).join("");
+
+    list.querySelectorAll("[data-delete-review]").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        if (!confirm("Supprimer définitivement cet avis ?")) return;
+        var res2 = await window.sb.from("reviews").delete().eq("id", btn.getAttribute("data-delete-review"));
+        if (res2.error) { toast("Suppression impossible.", "error"); return; }
+        toast("Avis supprimé.", "success");
+        loadReviews();
+        initForm();
+      });
+    });
   }
 
   function setRating(n) {
@@ -65,6 +81,9 @@
 
     var profileRes = await window.sb.from("profiles").select("*").eq("id", session.user.id).maybeSingle();
     profile = profileRes.data;
+
+    var adminRes = await window.sb.from("admins").select("status").eq("user_id", session.user.id).eq("status", "active").maybeSingle();
+    isAdmin = !!adminRes.data;
 
     hint.classList.add("hidden");
     form.classList.remove("hidden");

@@ -18,9 +18,14 @@
       ? '<a href="' + rel("admin/index.html") + '" class="btn btn-ghost btn-sm admin-link">Administration</a>'
       : "";
     var avatarUrl = avatarPublicUrl(state.avatarPath);
-    var profileLink = avatarUrl
-      ? '<a href="' + rel("profile.html") + '" title="Mon profil" style="display:inline-flex; align-items:center; gap:6px;"><img src="' + avatarUrl + '" alt="Mon profil" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid var(--line);"></a>'
-      : '<a href="' + rel("profile.html") + '" class="btn btn-ghost btn-sm">Mon profil</a>';
+    var initial = (state.session.user.email || "?").charAt(0).toUpperCase();
+    var avatarInner = avatarUrl
+      ? '<img src="' + avatarUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+      : initial;
+    var profileLink =
+      '<a href="' + rel("profile.html") + '" title="Mon profil" style="width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;overflow:hidden;flex-shrink:0;">' +
+        avatarInner +
+      "</a>";
     container.innerHTML =
       adminLink +
       profileLink +
