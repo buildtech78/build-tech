@@ -21,7 +21,7 @@
 
   async function loadConversations() {
     var res = await window.sb.from("conversations")
-      .select("*, profiles(email)")
+      .select("*, profiles(email, avatar_path)")
       .order("last_message_at", { ascending: false });
     if (res.error) { toast("Erreur de chargement des conversations.", "error"); return; }
     conversations = res.data || [];
@@ -47,11 +47,15 @@
     }
     list.innerHTML = items.map(function (c) {
       var email = c.profiles ? c.profiles.email : "Utilisateur";
+      var avatarUrl = avatarPublicUrl(c.profiles && c.profiles.avatar_path);
+      var avatarImg = avatarUrl
+        ? '<img src="' + avatarUrl + '" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;margin-right:6px;vertical-align:middle;">'
+        : "";
       var unreadDot = c.unread_by_admin ? '<span class="badge badge-warn">Non lu</span>' : "";
       var statusBadge = c.status === "closed" ? '<span class="badge badge-muted">Fermée</span>' : '<span class="badge badge-success">Ouverte</span>';
       return (
         '<div class="chat-list-item' + (c.id === activeConversationId ? " active" : "") + '" data-conv-id="' + c.id + '">' +
-          '<div class="row1"><span>' + escapeHtml(email) + "</span><span class=\"time\">" + formatRelative(c.last_message_at) + "</span></div>" +
+          '<div class="row1"><span>' + avatarImg + escapeHtml(email) + "</span><span class=\"time\">" + formatRelative(c.last_message_at) + "</span></div>" +
           '<div class="snippet">' + escapeHtml(c.subject || "") + " · " + (CONTEXT_LABELS[c.context_type] || "") + "</div>" +
           '<div style="margin-top:6px;">' + unreadDot + " " + statusBadge + "</div>" +
         "</div>"
@@ -74,10 +78,14 @@
 
     var thread = document.getElementById("chatThread");
     var email = conv.profiles ? conv.profiles.email : "Utilisateur";
+    var headerAvatarUrl = avatarPublicUrl(conv.profiles && conv.profiles.avatar_path);
+    var headerAvatarImg = headerAvatarUrl
+      ? '<img src="' + headerAvatarUrl + '" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">'
+      : "";
     thread.innerHTML =
       '<div class="chat-thread-header">' +
         '<div><button type="button" class="btn btn-ghost btn-sm" id="btnBackToList" style="margin-right:8px;">← Retour</button>' +
-          "<strong>" + escapeHtml(email) + "</strong> — " + escapeHtml(conv.subject || "") + "</div>" +
+          headerAvatarImg + "<strong>" + escapeHtml(email) + "</strong> — " + escapeHtml(conv.subject || "") + "</div>" +
         '<div class="row-actions">' +
           (conv.status === "open"
             ? '<button type="button" class="btn btn-ghost btn-sm" id="btnCloseConv">Fermer</button>'

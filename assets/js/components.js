@@ -93,7 +93,7 @@
       badges += '<span class="badge badge-muted">' + escapeHtml(c.component_categories.name) + "</span>";
     }
     return (
-      '<div class="blueprint-card component-card reveal">' +
+      '<div class="blueprint-card component-card">' +
         '<div class="thumb">' + thumb + "</div>" +
         '<div class="body">' +
           '<div class="badges">' + badges + "</div>" +

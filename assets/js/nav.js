@@ -17,9 +17,13 @@
     var adminLink = state.isAdmin
       ? '<a href="' + rel("admin/index.html") + '" class="btn btn-ghost btn-sm admin-link">Administration</a>'
       : "";
+    var avatarUrl = avatarPublicUrl(state.avatarPath);
+    var profileLink = avatarUrl
+      ? '<a href="' + rel("profile.html") + '" title="Mon profil" style="display:inline-flex; align-items:center; gap:6px;"><img src="' + avatarUrl + '" alt="Mon profil" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid var(--line);"></a>'
+      : '<a href="' + rel("profile.html") + '" class="btn btn-ghost btn-sm">Mon profil</a>';
     container.innerHTML =
       adminLink +
-      '<a href="' + rel("profile.html") + '" class="btn btn-ghost btn-sm">Mon profil</a>' +
+      profileLink +
       '<button type="button" class="btn btn-secondary btn-sm" id="btnLogout_' + container.id + '">Se déconnecter</button>';
     var logoutBtn = document.getElementById("btnLogout_" + container.id);
     if (logoutBtn) {
@@ -77,7 +81,7 @@
       profile = profileRes.data;
     }
 
-    var state = { session: session, isAdmin: isAdmin };
+    var state = { session: session, isAdmin: isAdmin, avatarPath: profile && profile.avatar_path };
     renderAuthArea(desktopArea, state);
     renderAuthArea(mobileArea, state);
 

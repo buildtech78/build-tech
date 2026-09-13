@@ -57,37 +57,37 @@
 
 <main>
 
-  <div class="pc-scroll-track" id="pcScrollTrack">
-    <div class="pc-scroll-sticky">
-      <canvas id="pc-canvas" aria-hidden="true"></canvas>
-      <div class="hero">
-        <div class="container">
-          <div class="hero-inner reveal">
-            <img src="./assets/img/logo.png" alt="" class="hero-logo logo-mark" aria-hidden="true">
-            <h1>Build<span style="color:var(--copper)">.</span>Tech</h1>
-            <p class="slogan" data-setting="slogan">// Votre informatique, notre expertise.</p>
-            <p class="lead" data-setting="hero_lead">
-              Montage PC sur mesure, nettoyage et entretien, changement de composants,
-              vente de matériel d'occasion et neuf, assistance informatique de proximité.
-              Build.Tech s'occupe de votre machine comme si c'était la sienne.
-            </p>
-            <div class="hero-actions">
-              <a href="./services.html" class="btn btn-primary">Découvrir nos services</a>
-              <a href="./components.html" class="btn btn-secondary">Voir les composants</a>
-              <a href="./contact.html" class="btn btn-ghost">Nous contacter</a>
-            </div>
-            <div class="hero-tags">
-              <span class="hero-tag">MONTAGE PC</span>
-              <span class="hero-tag">NETTOYAGE</span>
-              <span class="hero-tag">COMPOSANTS</span>
-              <span class="hero-tag">ASSISTANCE</span>
-            </div>
+  <section class="pc-parallax-hero">
+    <div class="pc-parallax-media" aria-hidden="true">
+      <img src="./assets/img/hero-pc.jpg" alt="" id="pcParallaxImg">
+    </div>
+    <div class="pc-parallax-overlay" aria-hidden="true"></div>
+    <div class="hero">
+      <div class="container">
+        <div class="hero-inner reveal">
+          <img src="./assets/img/logo.png" alt="" class="hero-logo logo-mark" aria-hidden="true">
+          <h1>Build<span style="color:var(--copper)">.</span>Tech</h1>
+          <p class="slogan" data-setting="slogan">// Votre informatique, notre expertise.</p>
+          <p class="lead" data-setting="hero_lead">
+            Montage PC sur mesure, nettoyage et entretien, changement de composants,
+            vente de matériel d'occasion et neuf, assistance informatique de proximité.
+            Build.Tech s'occupe de votre machine comme si c'était la sienne.
+          </p>
+          <div class="hero-actions">
+            <a href="./services.html" class="btn btn-primary">Découvrir nos services</a>
+            <a href="./components.html" class="btn btn-secondary">Voir les composants</a>
+            <a href="./contact.html" class="btn btn-ghost">Nous contacter</a>
+          </div>
+          <div class="hero-tags">
+            <span class="hero-tag">MONTAGE PC</span>
+            <span class="hero-tag">NETTOYAGE</span>
+            <span class="hero-tag">COMPOSANTS</span>
+            <span class="hero-tag">ASSISTANCE</span>
           </div>
         </div>
       </div>
-      <div class="scroll-hint"><span class="chevron">↓</span> Faites défiler</div>
     </div>
-  </div>
+  </section>
 
   <section class="section" id="about">
     <div class="container">
@@ -153,7 +153,6 @@
   </div>
 </footer>
 
-<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="./assets/js/config.js"></script>
 <script src="./assets/js/supabase-client.js"></script>
@@ -161,7 +160,7 @@
 <script src="./assets/js/theme.js"></script>
 <script src="./assets/js/nav.js"></script>
 <script src="./assets/js/site-content.js"></script>
-<script src="./assets/js/hero-scene.js"></script>
+<script src="./assets/js/pc-parallax.js"></script>
 <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
 </body>
 </html>

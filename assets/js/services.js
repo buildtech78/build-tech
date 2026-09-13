@@ -35,7 +35,7 @@
 
   function renderCard(service) {
     return (
-      '<div class="blueprint-card service-card reveal">' +
+      '<div class="blueprint-card service-card">' +
         "<h3>" + escapeHtml(service.name) + "</h3>" +
         "<p>" + escapeHtml(service.description || "") + "</p>" +
         '<div class="price-tag">' + formatPrice(service.price) + "</div>" +

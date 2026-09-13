@@ -107,12 +107,13 @@ function setButtonLoading(btn, loading, loadingText) {
   }
 }
 
-/** Petite animation "reveal" au scroll pour les sections marquées .reveal */
+/** Petite animation "reveal" au scroll pour les sections marquées .reveal.
+ *  Un MutationObserver surveille aussi les ajouts futurs (contenu chargé
+ *  après coup depuis Supabase) pour éviter qu'un élément .reveal reste
+ *  bloqué invisible s'il est ajouté après le premier passage. */
 function initScrollReveal() {
-  var items = document.querySelectorAll(".reveal");
-  if (!items.length) return;
   if (!("IntersectionObserver" in window)) {
-    items.forEach(function (el) { el.classList.add("in"); });
+    document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
     return;
   }
   var io = new IntersectionObserver(function (entries) {
@@ -123,7 +124,21 @@ function initScrollReveal() {
       }
     });
   }, { threshold: 0.15 });
-  items.forEach(function (el) { io.observe(el); });
+
+  document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+
+  if ("MutationObserver" in window) {
+    var mo = new MutationObserver(function (mutations) {
+      mutations.forEach(function (m) {
+        m.addedNodes.forEach(function (node) {
+          if (node.nodeType !== 1) return;
+          if (node.classList && node.classList.contains("reveal")) io.observe(node);
+          if (node.querySelectorAll) node.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+        });
+      });
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+  }
 }
 document.addEventListener("DOMContentLoaded", initScrollReveal);
 
@@ -143,4 +158,11 @@ if (window.location.pathname.indexOf("/admin/") === -1) {
   document.addEventListener("DOMContentLoaded", function () {
     if (window.sb) window.sb.from("page_views").insert({ path: window.location.pathname }).then(function () {});
   });
+}
+
+/** Construit l'URL publique d'une photo de profil stockée dans le bucket "avatars". */
+function avatarPublicUrl(path) {
+  if (!path || !window.sb) return null;
+  var res = window.sb.storage.from("avatars").getPublicUrl(path);
+  return res.data ? res.data.publicUrl : null;
 }
