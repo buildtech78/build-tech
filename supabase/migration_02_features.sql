@@ -3,7 +3,10 @@
 -- ----------------------------------------------------------------------------
 -- Ajoute : prénom/nom + photo de profil, avis 5 étoiles, compteur de visites
 -- anonyme, suppression de conversation, et active le temps réel du chat.
--- Colle ce fichier entier dans Supabase → SQL Editor → Run.
+--
+-- Ce fichier est écrit pour pouvoir être exécuté PLUSIEURS FOIS sans erreur
+-- (si une exécution précédente s'est arrêtée en cours de route) : chaque
+-- étape vérifie d'abord si elle a déjà été faite.
 -- ============================================================================
 
 -- ---- Profil : prénom / nom (facultatifs) + photo ----
@@ -13,7 +16,6 @@ alter table public.profiles add column if not exists avatar_path text;
 
 grant update (first_name, last_name, avatar_path) on public.profiles to authenticated;
 
--- Reprend la création de compte pour capter prénom/nom transmis à l'inscription
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -46,12 +48,13 @@ end;
 $$;
 
 -- ---- Suppression d'une conversation (utilisateur ou admin) ----
+drop policy if exists "conversations_delete_own_or_admin" on public.conversations;
 create policy "conversations_delete_own_or_admin" on public.conversations
   for delete to authenticated
   using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 -- ---- Avis clients (5 étoiles) ----
-create table public.reviews (
+create table if not exists public.reviews (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade unique,
   display_name text,
@@ -62,42 +65,62 @@ create table public.reviews (
 
 alter table public.reviews enable row level security;
 
+drop policy if exists "reviews_public_read" on public.reviews;
 create policy "reviews_public_read" on public.reviews
   for select to anon, authenticated
   using (true);
 
+drop policy if exists "reviews_insert_own" on public.reviews;
 create policy "reviews_insert_own" on public.reviews
   for insert to authenticated
   with check (user_id = auth.uid());
 
+drop policy if exists "reviews_update_own" on public.reviews;
 create policy "reviews_update_own" on public.reviews
   for update to authenticated
   using (user_id = auth.uid())
   with check (user_id = auth.uid());
 
+drop policy if exists "reviews_delete_own_or_admin" on public.reviews;
 create policy "reviews_delete_own_or_admin" on public.reviews
   for delete to authenticated
   using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 -- ---- Compteur de visites anonyme (aucune donnée identifiante stockée) ----
-create table public.page_views (
+create table if not exists public.page_views (
   id bigint generated always as identity primary key,
   path text,
   created_at timestamptz not null default now()
 );
 
 alter table public.page_views enable row level security;
-create index idx_page_views_created_at on public.page_views(created_at);
+create index if not exists idx_page_views_created_at on public.page_views(created_at);
 
+drop policy if exists "page_views_insert_anyone" on public.page_views;
 create policy "page_views_insert_anyone" on public.page_views
   for insert to anon, authenticated
   with check (true);
 
+drop policy if exists "page_views_admin_read" on public.page_views;
 create policy "page_views_admin_read" on public.page_views
   for select to authenticated
   using (public.is_admin(auth.uid()));
 
 -- ---- Active le temps réel pour le chat et la liste de conversations ----
 -- (Sans ceci, les messages n'apparaissent qu'après rechargement de la page.)
-alter publication supabase_realtime add table public.messages;
-alter publication supabase_realtime add table public.conversations;
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'messages'
+  ) then
+    alter publication supabase_realtime add table public.messages;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'conversations'
+  ) then
+    alter publication supabase_realtime add table public.conversations;
+  end if;
+end $$;

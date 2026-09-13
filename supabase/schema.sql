@@ -16,7 +16,7 @@ create extension if not exists pgcrypto;
 -- 1. TABLES
 -- ----------------------------------------------------------------------------
 
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
   first_name text,
@@ -27,7 +27,7 @@ create table public.profiles (
   created_at timestamptz not null default now()
 );
 
-create table public.admins (
+create table if not exists public.admins (
   user_id uuid primary key references public.profiles(id) on delete cascade,
   is_owner boolean not null default false,
   status text not null default 'active' check (status in ('active','revoked')),
@@ -35,7 +35,7 @@ create table public.admins (
   added_by uuid references auth.users(id)
 );
 
-create table public.admin_invites (
+create table if not exists public.admin_invites (
   id uuid primary key default gen_random_uuid(),
   email text unique not null,
   invited_by uuid references auth.users(id),
@@ -43,14 +43,14 @@ create table public.admin_invites (
   accepted boolean not null default false
 );
 
-create table public.component_categories (
+create table if not exists public.component_categories (
   id uuid primary key default gen_random_uuid(),
   name text unique not null,
   sort_order int not null default 0,
   created_at timestamptz not null default now()
 );
 
-create table public.components (
+create table if not exists public.components (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   description text,
@@ -64,7 +64,7 @@ create table public.components (
   updated_at timestamptz not null default now()
 );
 
-create table public.services (
+create table if not exists public.services (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   description text,
@@ -75,7 +75,7 @@ create table public.services (
   updated_at timestamptz not null default now()
 );
 
-create table public.conversations (
+create table if not exists public.conversations (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   subject text,
@@ -88,7 +88,7 @@ create table public.conversations (
   created_at timestamptz not null default now()
 );
 
-create table public.messages (
+create table if not exists public.messages (
   id uuid primary key default gen_random_uuid(),
   conversation_id uuid not null references public.conversations(id) on delete cascade,
   sender_id uuid not null references auth.users(id),
@@ -100,20 +100,20 @@ create table public.messages (
 
 -- Journal des emails de notification déjà envoyés, pour éviter le spam
 -- (utilisé uniquement par la Edge Function notify-new-message via service_role).
-create table public.notifications_log (
+create table if not exists public.notifications_log (
   id uuid primary key default gen_random_uuid(),
   conversation_id uuid references public.conversations(id) on delete cascade,
   recipient_email text,
   sent_at timestamptz not null default now()
 );
 
-create table public.site_settings (
+create table if not exists public.site_settings (
   key text primary key,
   value jsonb,
   updated_at timestamptz not null default now()
 );
 
-create table public.push_subscriptions (
+create table if not exists public.push_subscriptions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   subscription jsonb not null,
@@ -121,7 +121,7 @@ create table public.push_subscriptions (
 );
 
 -- Avis clients (5 étoiles) — un avis par compte, modifiable par son auteur.
-create table public.reviews (
+create table if not exists public.reviews (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade unique,
   display_name text,
@@ -132,25 +132,25 @@ create table public.reviews (
 
 -- Compteur de visites anonyme : aucune donnée identifiante n'est stockée,
 -- uniquement la page visitée et l'horodatage, pour des statistiques globales.
-create table public.page_views (
+create table if not exists public.page_views (
   id bigint generated always as identity primary key,
   path text,
   created_at timestamptz not null default now()
 );
 
 -- Index utiles (performance des listes / filtres les plus fréquents)
-create index idx_conversations_user_id on public.conversations(user_id);
-create index idx_conversations_status on public.conversations(status);
-create index idx_messages_conversation_id on public.messages(conversation_id);
-create index idx_components_category_id on public.components(category_id);
-create index idx_components_available on public.components(available);
-create index idx_page_views_created_at on public.page_views(created_at);
+create index if not exists idx_conversations_user_id on public.conversations(user_id);
+create index if not exists idx_conversations_status on public.conversations(status);
+create index if not exists idx_messages_conversation_id on public.messages(conversation_id);
+create index if not exists idx_components_category_id on public.components(category_id);
+create index if not exists idx_components_available on public.components(available);
+create index if not exists idx_page_views_created_at on public.page_views(created_at);
 
 -- Vue : nombre de conversations par utilisateur (évite les requêtes N+1 dans
 -- le panneau Utilisateurs). security_invoker = true : la vue respecte les
 -- policies RLS de celui qui l'interroge (un admin voit tout, un utilisateur
 -- ne verrait que sa propre ligne).
-create view public.user_conversation_counts
+create or replace view public.user_conversation_counts
 with (security_invoker = true) as
 select user_id, count(*)::int as conversation_count
 from public.conversations
@@ -231,6 +231,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
@@ -258,6 +259,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_message_created on public.messages;
 create trigger on_message_created
   after insert on public.messages
   for each row execute function public.handle_new_message();
@@ -273,8 +275,10 @@ begin
 end;
 $$;
 
+drop trigger if exists set_updated_at_components on public.components;
 create trigger set_updated_at_components before update on public.components
   for each row execute function public.set_updated_at();
+drop trigger if exists set_updated_at_services on public.services;
 create trigger set_updated_at_services before update on public.services
   for each row execute function public.set_updated_at();
 
@@ -300,10 +304,12 @@ alter table public.push_subscriptions enable row level security;
 revoke update on public.profiles from authenticated;
 grant update (theme_preference, first_name, last_name, avatar_path) on public.profiles to authenticated;
 
+drop policy if exists "profiles_select_own_or_admin" on public.profiles;
 create policy "profiles_select_own_or_admin" on public.profiles
   for select to authenticated
   using (id = auth.uid() or public.is_admin(auth.uid()));
 
+drop policy if exists "profiles_update_own_theme" on public.profiles;
 create policy "profiles_update_own_theme" on public.profiles
   for update to authenticated
   using (id = auth.uid())
@@ -317,6 +323,7 @@ create policy "profiles_update_own_theme" on public.profiles
 -- et les admins peuvent voir la liste complète. Aucune écriture directe
 -- n'est autorisée : toute modification passe par la Edge Function
 -- admin-actions (avec la clé service_role, qui contourne RLS).
+drop policy if exists "admins_select_self_or_admin" on public.admins;
 create policy "admins_select_self_or_admin" on public.admins
   for select to authenticated
   using (user_id = auth.uid() or public.is_admin(auth.uid()));
@@ -326,36 +333,44 @@ create policy "admins_select_self_or_admin" on public.admins
 -- service_role (Edge Function) et via le trigger handle_new_user.
 
 -- ---- component_categories ----
+drop policy if exists "categories_public_read" on public.component_categories;
 create policy "categories_public_read" on public.component_categories
   for select to anon, authenticated
   using (true);
+drop policy if exists "categories_admin_write" on public.component_categories;
 create policy "categories_admin_write" on public.component_categories
   for all to authenticated
   using (public.is_admin(auth.uid()))
   with check (public.is_admin(auth.uid()));
 
 -- ---- components ----
+drop policy if exists "components_public_read" on public.components;
 create policy "components_public_read" on public.components
   for select to anon, authenticated
   using (true);
+drop policy if exists "components_admin_write" on public.components;
 create policy "components_admin_write" on public.components
   for all to authenticated
   using (public.is_admin(auth.uid()))
   with check (public.is_admin(auth.uid()));
 
 -- ---- services ----
+drop policy if exists "services_public_read" on public.services;
 create policy "services_public_read" on public.services
   for select to anon, authenticated
   using (true);
+drop policy if exists "services_admin_write" on public.services;
 create policy "services_admin_write" on public.services
   for all to authenticated
   using (public.is_admin(auth.uid()))
   with check (public.is_admin(auth.uid()));
 
 -- ---- site_settings ----
+drop policy if exists "settings_public_read" on public.site_settings;
 create policy "settings_public_read" on public.site_settings
   for select to anon, authenticated
   using (true);
+drop policy if exists "settings_admin_write" on public.site_settings;
 create policy "settings_admin_write" on public.site_settings
   for all to authenticated
   using (public.is_admin(auth.uid()))
@@ -368,24 +383,29 @@ create policy "settings_admin_write" on public.site_settings
 revoke update on public.conversations from authenticated;
 grant update (status, unread_by_admin, unread_by_user) on public.conversations to authenticated;
 
+drop policy if exists "conversations_select_own_or_admin" on public.conversations;
 create policy "conversations_select_own_or_admin" on public.conversations
   for select to authenticated
   using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
+drop policy if exists "conversations_insert_own" on public.conversations;
 create policy "conversations_insert_own" on public.conversations
   for insert to authenticated
   with check (user_id = auth.uid());
 
+drop policy if exists "conversations_update_own_or_admin" on public.conversations;
 create policy "conversations_update_own_or_admin" on public.conversations
   for update to authenticated
   using (user_id = auth.uid() or public.is_admin(auth.uid()))
   with check (user_id = auth.uid() or public.is_admin(auth.uid()));
 
+drop policy if exists "conversations_delete_own_or_admin" on public.conversations;
 create policy "conversations_delete_own_or_admin" on public.conversations
   for delete to authenticated
   using (user_id = auth.uid() or public.is_admin(auth.uid()));
 
 -- ---- messages ----
+drop policy if exists "messages_select_participant" on public.messages;
 create policy "messages_select_participant" on public.messages
   for select to authenticated
   using (
@@ -396,6 +416,7 @@ create policy "messages_select_participant" on public.messages
     )
   );
 
+drop policy if exists "messages_insert_participant" on public.messages;
 create policy "messages_insert_participant" on public.messages
   for insert to authenticated
   with check (
@@ -416,6 +437,7 @@ create policy "messages_insert_participant" on public.messages
 -- Aucune policy pour authenticated/anon : uniquement service_role (Edge Function).
 
 -- ---- push_subscriptions ----
+drop policy if exists "push_subscriptions_owner" on public.push_subscriptions;
 create policy "push_subscriptions_owner" on public.push_subscriptions
   for all to authenticated
   using (user_id = auth.uid())
@@ -424,16 +446,20 @@ create policy "push_subscriptions_owner" on public.push_subscriptions
 -- ---- reviews ----
 alter table public.reviews enable row level security;
 
+drop policy if exists "reviews_public_read" on public.reviews;
 create policy "reviews_public_read" on public.reviews
   for select to anon, authenticated
   using (true);
+drop policy if exists "reviews_insert_own" on public.reviews;
 create policy "reviews_insert_own" on public.reviews
   for insert to authenticated
   with check (user_id = auth.uid());
+drop policy if exists "reviews_update_own" on public.reviews;
 create policy "reviews_update_own" on public.reviews
   for update to authenticated
   using (user_id = auth.uid())
   with check (user_id = auth.uid());
+drop policy if exists "reviews_delete_own_or_admin" on public.reviews;
 create policy "reviews_delete_own_or_admin" on public.reviews
   for delete to authenticated
   using (user_id = auth.uid() or public.is_admin(auth.uid()));
@@ -441,9 +467,11 @@ create policy "reviews_delete_own_or_admin" on public.reviews
 -- ---- page_views (compteur anonyme) ----
 alter table public.page_views enable row level security;
 
+drop policy if exists "page_views_insert_anyone" on public.page_views;
 create policy "page_views_insert_anyone" on public.page_views
   for insert to anon, authenticated
   with check (true);
+drop policy if exists "page_views_admin_read" on public.page_views;
 create policy "page_views_admin_read" on public.page_views
   for select to authenticated
   using (public.is_admin(auth.uid()));
@@ -451,8 +479,22 @@ create policy "page_views_admin_read" on public.page_views
 -- ============================================================================
 -- TEMPS RÉEL : sans ceci, les messages n'apparaissent qu'après rechargement.
 -- ============================================================================
-alter publication supabase_realtime add table public.messages;
-alter publication supabase_realtime add table public.conversations;
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'messages'
+  ) then
+    alter publication supabase_realtime add table public.messages;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'conversations'
+  ) then
+    alter publication supabase_realtime add table public.conversations;
+  end if;
+end $$;
 
 -- ============================================================================
 -- Fin du schéma. Étape suivante : créer le bucket de stockage "components"
