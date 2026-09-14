@@ -168,6 +168,12 @@ Sur la page qui s'affiche, sous "…or upload an existing file" :
 > les avis clients, le compteur de visites, la suppression de conversation
 > et active le temps réel du chat. Si tu pars d'une installation neuve,
 > `schema.sql` contient déjà tout, ce fichier n'est pas nécessaire.
+>
+> 🆕 **Envoi d'images dans le chat** : exécute aussi
+> **`supabase/migration_03_chat_images.sql`**, puis crée un bucket Storage
+> nommé exactement `chat-attachments` avec **Public bucket désactivé**
+> (contrairement aux autres buckets, celui-ci doit rester privé — voir
+> partie 5.2), puis exécute `supabase/storage_policies.sql` en entier.
 
 ---
 
@@ -196,6 +202,15 @@ Répète les étapes 2 à 4 ci-dessus pour créer un second bucket nommé
 exactement **`avatars`**, également **Public**. Les règles de sécurité de
 ce bucket sont déjà incluses dans `supabase/storage_policies.sql` (chaque
 utilisateur ne peut modifier que sa propre photo).
+
+### 5.2 Bucket pour les images envoyées dans le chat
+
+Crée un troisième bucket nommé exactement **`chat-attachments`**, mais
+cette fois **laisse "Public bucket" désactivé** — contrairement aux photos
+de composants ou de profil, les images de chat ne doivent être visibles
+que par le client concerné et les administrateurs. Les règles de sécurité
+(déjà dans `storage_policies.sql`) vérifient cette condition à chaque
+lecture et chaque envoi.
 
 ---
 

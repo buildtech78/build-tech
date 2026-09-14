@@ -93,9 +93,14 @@ create table if not exists public.messages (
   conversation_id uuid not null references public.conversations(id) on delete cascade,
   sender_id uuid not null references auth.users(id),
   sender_role text not null check (sender_role in ('user','admin')),
-  content text not null check (char_length(content) between 1 and 4000),
+  content text,
+  image_path text,
   created_at timestamptz not null default now(),
-  read_at timestamptz
+  read_at timestamptz,
+  constraint messages_content_check check (
+    (content is not null and char_length(content) between 1 and 4000)
+    or image_path is not null
+  )
 );
 
 -- Journal des emails de notification déjà envoyés, pour éviter le spam

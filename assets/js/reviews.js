@@ -97,9 +97,9 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", async function () {
+    await initForm();
     loadReviews();
-    initForm();
 
     document.querySelectorAll("#starInput button").forEach(function (btn) {
       btn.addEventListener("click", function () { setRating(Number(btn.getAttribute("data-star"))); });

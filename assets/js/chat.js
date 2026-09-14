@@ -86,7 +86,7 @@
       "</div>" +
       '<div class="chat-messages" id="chatMessages"><div class="loading-row"><span class="spinner"></span> Chargement des messages…</div></div>' +
       (conv.status === "open"
-        ? '<form class="chat-composer" id="composerForm"><textarea id="composerInput" rows="1" placeholder="Écrivez votre message…" required></textarea><button type="submit" class="btn btn-primary">Envoyer</button></form>'
+        ? '<form class="chat-composer" id="composerForm"><label class="btn btn-ghost btn-sm" for="composerImageInput" title="Envoyer une image" style="cursor:pointer;">📎</label><input type="file" id="composerImageInput" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none;"><textarea id="composerInput" rows="1" placeholder="Écrivez votre message…"></textarea><button type="submit" class="btn btn-primary">Envoyer</button></form>'
         : "");
 
     document.getElementById("btnBackToList").addEventListener("click", function () {
@@ -124,6 +124,14 @@
         var res = await sendChatMessage(id, currentUserId, "user", content);
         if (res.error) toast("Le message n'a pas pu être envoyé.", "error");
       });
+      var imageInput = document.getElementById("composerImageInput");
+      imageInput.addEventListener("change", async function () {
+        var file = imageInput.files && imageInput.files[0];
+        imageInput.value = "";
+        if (!file) return;
+        var res = await sendChatImage(id, currentUserId, "user", file);
+        if (res.error) toast(res.error.message || "L'image n'a pas pu être envoyée.", "error");
+      });
     }
 
     await loadMessages(id);
@@ -144,14 +152,16 @@
       return;
     }
     container.innerHTML = "";
-    (res.data || []).forEach(function (m) { container.appendChild(renderMessageBubble(m, "user")); });
+    for (var i = 0; i < (res.data || []).length; i++) {
+      container.appendChild(await renderMessageBubble(res.data[i], "user"));
+    }
     container.scrollTop = container.scrollHeight;
   }
 
-  function appendMessage(msg) {
+  async function appendMessage(msg) {
     var container = document.getElementById("chatMessages");
     if (!container) return;
-    container.appendChild(renderMessageBubble(msg, "user"));
+    container.appendChild(await renderMessageBubble(msg, "user"));
     container.scrollTop = container.scrollHeight;
   }
 

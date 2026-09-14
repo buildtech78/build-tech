@@ -17,7 +17,8 @@
   function update() {
     var offsetY = window.scrollY * 0.32;
     var offsetX = pointerX * 14;
-    media.style.transform = "translate3d(" + offsetX + "px," + offsetY + "px,0)";
+    var rotate = Math.min(window.scrollY * 0.015, 4);
+    media.style.transform = "translate3d(" + offsetX + "px," + offsetY + "px,0) rotate(" + rotate + "deg)";
     ticking = false;
   }
 

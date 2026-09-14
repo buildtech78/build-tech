@@ -56,3 +56,32 @@ drop policy if exists "avatars_bucket_owner_delete" on storage.objects;
 create policy "avatars_bucket_owner_delete"
 on storage.objects for delete
 using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- ============================================================================
+-- Bucket "chat-attachments" — images envoyées dans le chat. Crée-le depuis
+-- le Dashboard (Storage → New bucket → nom EXACT : chat-attachments →
+-- Public bucket : DÉSACTIVÉ, celui-ci doit rester privé) avant d'exécuter
+-- la partie ci-dessous.
+-- ============================================================================
+
+drop policy if exists "chat_attachments_participant_read" on storage.objects;
+create policy "chat_attachments_participant_read"
+on storage.objects for select
+using (
+  bucket_id = 'chat-attachments' and exists (
+    select 1 from public.conversations c
+    where c.id::text = (storage.foldername(name))[1]
+      and (c.user_id = auth.uid() or public.is_admin(auth.uid()))
+  )
+);
+
+drop policy if exists "chat_attachments_participant_insert" on storage.objects;
+create policy "chat_attachments_participant_insert"
+on storage.objects for insert
+with check (
+  bucket_id = 'chat-attachments' and exists (
+    select 1 from public.conversations c
+    where c.id::text = (storage.foldername(name))[1]
+      and (c.user_id = auth.uid() or public.is_admin(auth.uid()))
+  )
+);
